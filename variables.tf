@@ -183,17 +183,17 @@ variable "cooldown_down" {
 variable "policy_type_up" {
   description = "Policy type UP"
   type        = string
-  default     = "SimpleScaling"
+  default     = null
 }
 
 variable "policy_type_down" {
   description = "Policy type down"
   type        = string
-  default     = "SimpleScaling"
+  default     = null
 }
 
 variable "cloudwatch_metrics_alarms" {
-  description = "Define the metrics and alarmes for autoscaling, by default implements scaling up from 70% to CPU and 70% to memory and scaling down from 20% CPU and 20% to memory"
+  description = "Define the metrics and alarmes for autoscaling, by default implements scaling up from 70% to CPU and scaling down from 20% CPU"
   type = list(object({
     scaling_type        = optional(string, "cpu")
     is_scaling_up       = optional(bool, true)
@@ -221,21 +221,7 @@ variable "cloudwatch_metrics_alarms" {
       alarm_description   = "Monitors CPU utilization to down scaling"
       comparison_operator = "LessThanOrEqualToThreshold"
       metric_name         = "CPUUtilization"
-    },
-    {
-      scaling_type        = "memory"
-      is_scaling_up       = true
-      alarm_description   = "Monitors memory utilization to up scaling"
-      comparison_operator = "GreaterThanOrEqualToThreshold"
-      metric_name         = "MemoryUtilization"
-    },
-    {
-      scaling_type        = "memory"
-      is_scaling_up       = false
-      alarm_description   = "Monitors memory utilization to down scaling"
-      comparison_operator = "LessThanOrEqualToThreshold"
-      metric_name         = "MemoryUtilization"
-    },
+    }
   ]
 }
 

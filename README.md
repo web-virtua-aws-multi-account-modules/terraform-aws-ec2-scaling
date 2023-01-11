@@ -225,9 +225,9 @@ module "vm_elasticsearch_cluster_autoscalling" {
 | adjustment_type_down | `string` | `ChangeInCapacity` | no | Adjustment type down | `-` |
 | cooldown_up | `number` | `300` | no | Cooldown up | `-` |
 | cooldown_down | `number` | `300` | no | Cooldown down | `-` |
-| policy_type_up | `string` | `SimpleScaling` | no | Policy type up | `-` |
-| policy_type_down | `string` | `SimpleScaling` | no | Policy type down | `-` |
-| cloudwatch_metrics_alarms | `list(object)` | `object` | no | Define the metrics and alarmes for autoscaling, by default implements scaling up from 70% to CPU and 70% to memory and scaling down from 20% CPU and 20% to memory | `-` |
+| policy_type_up | `string` | `null` | no | Policy type up | `-` |
+| policy_type_down | `string` | `null` | no | Policy type down | `-` |
+| cloudwatch_metrics_alarms | `list(object)` | `object` | no | Define the metrics and alarmes for autoscaling, by default implements scaling up from 70% to CPU and scaling down from 20% CPU | `-` |
 | ami | `string` | `-` | yes | AMI Instance type | `-` |
 | name_launch_config | `string` | `null` | no | Name to launch config | `-` |
 | security_group_ids | `list(string)` | `[]` | no | ID's of the security groups | `-` |
@@ -257,10 +257,10 @@ module "vm_elasticsearch_cluster_autoscalling" {
 | ec2_assume_role | `any` | `object` | no | Policy with the permissions to EC2, should be fomated as json | `-` |
 
 * Model of variable cloudwatch_metrics_alarms
-OBS: By default will be implements scaling up from 70% to CPU and 70% to memory and scaling down from 20% CPU and 20% to memory, else will be used the the values defined in this variable
+OBS: By default will be implements scaling up from 70% to CPU and scaling down from 20% CPU, else will be used the the values defined in this variable
 ```hcl
 variable "cloudwatch_metrics_alarms" {
-  description = "Define the metrics and alarmes for autoscaling, by default implements scaling up from 70% to CPU and 70% to memory and scaling down from 20% CPU and 20% to memory"
+  description = "Define the metrics and alarmes for autoscaling, by default implements scaling up from 70% to CPU and scaling down from 20% CPU"
   type = list(object({
     scaling_type        = optional(string, "cpu")
     is_scaling_up       = optional(bool, true)

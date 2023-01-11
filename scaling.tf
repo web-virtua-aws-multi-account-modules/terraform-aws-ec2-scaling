@@ -33,7 +33,9 @@ locals {
 }
 
 resource "aws_autoscaling_policy" "create_policy_up" {
-  name                   = var.name_autoscaling_policy_up != null ? var.name_autoscaling_policy_up : "${var.name}-up"
+  count = length(local.metrics_alarms_up)
+
+  name                   = local.metrics_alarms_up[count.index].alarm_name
   scaling_adjustment     = var.scaling_adjustment_up
   adjustment_type        = var.adjustment_type_up
   cooldown               = var.cooldown_up
@@ -42,7 +44,9 @@ resource "aws_autoscaling_policy" "create_policy_up" {
 }
 
 resource "aws_autoscaling_policy" "create_policy_down" {
-  name                   = var.name_autoscaling_policy_down != null ? var.name_autoscaling_policy_down : "${var.name}-up"
+  count = length(local.metrics_alarms_down)
+
+  name                   = local.metrics_alarms_down[count.index].alarm_name
   scaling_adjustment     = var.scaling_adjustment_down
   adjustment_type        = var.adjustment_type_down
   cooldown               = var.cooldown_down
@@ -64,7 +68,7 @@ resource "aws_cloudwatch_metric_alarm" "create_alarm_scale_up" {
   statistic           = local.metrics_alarms_up[count.index].statistic
 
   alarm_actions = [
-    aws_autoscaling_policy.create_policy_up.arn
+    aws_autoscaling_policy.create_policy_up[count.index].arn
   ]
 
   dimensions = {
@@ -86,7 +90,7 @@ resource "aws_cloudwatch_metric_alarm" "create_alarm_scale_down" {
   statistic           = local.metrics_alarms_down[count.index].statistic
 
   alarm_actions = [
-    aws_autoscaling_policy.create_policy_down.arn
+    aws_autoscaling_policy.create_policy_down[count.index].arn
   ]
 
   dimensions = {

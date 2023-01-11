@@ -15,7 +15,7 @@ output "placement_group" {
 
 output "autoscaling_group" {
   description = "Autoscaling group"
-  value       = try(aws_autoscaling_group.create_autoscaling_group, null)
+  value       = aws_autoscaling_group.create_autoscaling_group
 }
 
 output "autoscaling_policy_up" {
@@ -56,15 +56,4 @@ output "ec2_attachment_policy_role" {
 output "ec2_profile" {
   description = "EC2 profile"
   value       = try(aws_iam_instance_profile.create_ec2_profile[0], null)
-}
-
-output "metrics_alarms" {
-  description = "EC2 metrics_alarms"
-  # value       = local.metrics_alarms
-  value = [
-    length(local.metrics_alarms_up),
-    length(local.metrics_alarms_down),
-    local.metrics_alarms_up,
-    local.metrics_alarms_down
-  ]
 }
