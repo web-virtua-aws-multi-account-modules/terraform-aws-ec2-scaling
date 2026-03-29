@@ -1,11 +1,11 @@
-output "launch_configuration" {
-  description = "Launch configuration"
-  value       = try(aws_launch_configuration.create_launch_config[0], null)
+output "launch_template" {
+  description = "Launch template"
+  value       = try(aws_launch_template.create_launch_template[0], null)
 }
 
-output "launch_configuration_arn" {
-  description = "Launch configuration ARN"
-  value       = try(aws_launch_configuration.create_launch_config[0].arn, null)
+output "launch_template_arn" {
+  description = "Launch template ARN"
+  value       = try(aws_launch_template.create_launch_template[0].arn, null)
 }
 
 output "placement_group" {
@@ -50,7 +50,7 @@ output "ec2_role" {
 
 output "ec2_attachment_policy_role" {
   description = "EC2 attachment policy role"
-  value       = try(aws_iam_policy_attachment.create_ec2_attachment_policy_role[0], null)
+  value       = try(aws_iam_role_policy_attachment.create_ec2_attachment_policy_role[0], null)
 }
 
 output "ec2_profile" {

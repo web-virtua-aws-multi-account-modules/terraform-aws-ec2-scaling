@@ -43,7 +43,7 @@ provider "aws" {
 
 - Autoscaling EC2
 - Placement group
-- Launch configuration
+- Launch template (with IMDSv2 support)
 - Autoscaling policy
 - Policy and role to permissions
 
@@ -205,7 +205,8 @@ module "vm_elasticsearch_cluster_autoscalling" {
 | health_check_type | `string` | `EC2` | no | Health checking type, can be EC2 or ELB. When using ELB as the health_check_type, health_check_grace_period is required | `*`EC2 <br> `*`ELB |
 | health_check_grace_period | `number` | `300` | no | Define a period to health check | `-` |
 | target_group_arns | `list(string)` | `null` | no | Target groups ARN's | `-` |
-| launch_configuration_name_existing | `string` | `null` | no | Launch configuration name, if defined will be used on autoscaling group else will be created a new | `-` |
+| launch_template_id_existing | `string` | `null` | no | Launch template ID, if defined will be used on autoscaling group else will be created a new | `-` |
+| launch_template_version | `string` | `$Latest` | no | Launch template version. Can be version number, $Latest, or $Default | `-` |
 | placement_group | `object` | `null` | no | AWS placement group to create instances | `-` |
 | wait_for_capacity_timeout | `string` | `5m` | no | Time to waiting capacity | `-` |
 | metrics_granularity | `string` | `1Minute` | no | The granularity to associate with the metrics to collect, by default is 1Minute | `-` |
@@ -229,15 +230,18 @@ module "vm_elasticsearch_cluster_autoscalling" {
 | policy_type_down | `string` | `null` | no | Policy type down | `-` |
 | cloudwatch_metrics_alarms | `list(object)` | `object` | no | Define the metrics and alarmes for autoscaling, by default implements scaling up from 70% to CPU and scaling down from 20% CPU | `-` |
 | ami | `string` | `-` | yes | AMI Instance type | `-` |
-| name_launch_config | `string` | `null` | no | Name to launch config | `-` |
+| name_launch_template | `string` | `null` | no | Name prefix for the launch template | `-` |
 | security_group_ids | `list(string)` | `[]` | no | ID's of the security groups | `-` |
-| instance_type | `string` | `t2.micro` | no | Instance type | `-` |
+| instance_type | `string` | `t3a.micro` | no | Instance type | `-` |
 | key_pair_name | `string` | `null` | no | Key Pair to Access SSH | `-` |
 | data_startup_script | `string` | `-` | no | Shell script to run when starting instance | `-` |
 | spot_price | `string` | `null` | no | The maximum price to request on the spot market. Defaults to on-demand price, exemple value 0.018 | `-` |
 | associate_public_ip_address | `bool` | `true` | no | If true will be associate a public IP to instance | `*`false <br> `*`true |
 | enable_monitoring | `bool` | `true` | no | Enables/disables detailed monitoring | `*`false <br> `*`true |
 | iam_instance_profile_name | `string` | `null` | no | The name of the existing IAM profile to attach to the instance granting permissions to the instance, if null this module will allow creating the IAM profile or not defining any profile | `-` |
+| metadata_http_endpoint | `string` | `enabled` | no | Whether the metadata service is available. Valid values: enabled, disabled | `-` |
+| metadata_http_tokens | `string` | `required` | no | Whether metadata service requires session tokens (IMDSv2). Valid values: optional, required | `-` |
+| metadata_http_put_response_hop_limit | `number` | `2` | no | The desired HTTP PUT response hop limit for instance metadata requests (1-64) | `-` |
 | root_volume_size | `number` | `-` | yes | Size to root volume | `-` |
 | root_volume_type | `string` | `gp3` | no | Root volume type | `-` |
 | root_encrypted | `bool` | `false` | no | Root volume encrypted | `*`false <br> `*`true |
@@ -339,7 +343,7 @@ description = "AWS placement group to create instances"
 
 | Name | Type |
 |------|------|
-| [aws_launch_configuration.create_launch_config](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/launch_configuration) | resource |
+| [aws_launch_template.create_launch_template](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/launch_template) | resource |
 | [aws_placement_group.create_placement_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/placement_group) | resource |
 | [aws_autoscaling_group.create_autoscaling_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscaling_group) | resource |
 | [aws_autoscaling_policy.create_policy_up](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/autoscaling_policy) | resource |
@@ -348,19 +352,21 @@ description = "AWS placement group to create instances"
 | [aws_cloudwatch_metric_alarm.create_alarm_scale_down](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_metric_alarm) | resource |
 | [aws_iam_policy.create_ec2_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_role.create_ec2_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
-| [aws_iam_policy_attachment.create_ec2_attachment_policy_role](https://registry.terraform.io/providers/hashicorp/aws/3.29.1/docs/resources/iam_policy_attachment) | resource |
+| [aws_iam_role_policy_attachment.create_ec2_attachment_policy_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_instance_profile.create_ec2_profile](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_instance_profile) | resource |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| `launch_configuration` | Launch configuration |
-| `launch_configuration_arn` | Launch configuration ARN |
+| `launch_template` | Launch template |
+| `launch_template_arn` | Launch template ARN |
 | `placement_group` | Placement group |
 | `autoscaling_group` | Autoscaling group |
 | `autoscaling_policy_up` | Autoscaling policy UP |
 | `autoscaling_policy_down` | Autoscaling policy down |
+| `alarms_scale_up` | Autoscaling alarms scale up |
+| `alarms_scale_down` | Autoscaling alarms scale down |
 | `ec2_policy` | EC2 policy |
 | `ec2_role` | EC2 role |
 | `ec2_attachment_policy_role` | EC2 attachment policy role |

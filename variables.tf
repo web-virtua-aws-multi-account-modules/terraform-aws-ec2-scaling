@@ -52,10 +52,16 @@ variable "target_group_arns" {
   default     = null
 }
 
-variable "launch_configuration_name_existing" {
-  description = "Launch configuration name, if defined will be used on autoscaling group else will be created a new"
+variable "launch_template_id_existing" {
+  description = "Launch template ID, if defined will be used on autoscaling group else will be created a new"
   type        = string
   default     = null
+}
+
+variable "launch_template_version" {
+  description = "Launch template version. Can be version number, $Latest, or $Default"
+  type        = string
+  default     = "$Latest"
 }
 
 variable "placement_group" {
@@ -226,14 +232,15 @@ variable "cloudwatch_metrics_alarms" {
 }
 
 #######################################
-# Launch Configuration
+# Launch Template
 #######################################
 variable "ami" {
   description = "AMI Instance type"
   type        = string
 }
-variable "name_launch_config" {
-  description = "Name to launch config"
+
+variable "name_launch_template" {
+  description = "Name prefix for the launch template"
   type        = string
   default     = null
 }
@@ -247,7 +254,7 @@ variable "security_group_ids" {
 variable "instance_type" {
   description = "Instance type"
   type        = string
-  default     = "t2.micro"
+  default     = "t3a.micro"
 }
 
 variable "key_pair_name" {
@@ -284,6 +291,27 @@ variable "iam_instance_profile_name" {
   description = "The name of the existing IAM profile to attach to the instance granting permissions to the instance, if null this module will allow creating the IAM profile or not defining any profile"
   type        = string
   default     = null
+}
+
+#######################################
+# IMDSv2 / Metadata configuration
+#######################################
+variable "metadata_http_endpoint" {
+  description = "Whether the metadata service is available. Valid values: enabled, disabled"
+  type        = string
+  default     = "enabled"
+}
+
+variable "metadata_http_tokens" {
+  description = "Whether metadata service requires session tokens (IMDSv2). Valid values: optional, required. Use 'required' to enforce IMDSv2"
+  type        = string
+  default     = "required"
+}
+
+variable "metadata_http_put_response_hop_limit" {
+  description = "The desired HTTP PUT response hop limit for instance metadata requests. Values between 1 and 64"
+  type        = number
+  default     = 2
 }
 
 #######################################
